@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "babel-node src/index.js",
-    "test": "coming soon..."
+    "pretest": "standard --verbose | snazzy",
+    "test": "mocha test --opts test/mocha.opts"
   },
   "author": "everydayhero",
   "license": "ISC",
@@ -15,5 +16,17 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-stage-2": "^6.11.0",
     "botkit": "^0.2.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "snazzy": "^4.0.0",
+    "standard": "^7.1.2"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "it"
+    ]
   }
 }
