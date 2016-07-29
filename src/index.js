@@ -1,5 +1,6 @@
 import Botkit from 'botkit'
 import librato from './librato'
+import { durationToSeconds, startPolling, stopPolling } from './polling'
 
 const controller = Botkit.slackbot({
   debug: false
@@ -21,13 +22,42 @@ controller.hears(['hello', 'hi'], interaction, (bot, message) => {
   })
 })
 
-controller.hears(['tell me (.*)', '[what’s|whats] (.*)'], interaction, (bot, message) => {
-  const metricName = message.match[1]
+const replyWithMetric = (metricName, bot, message) => (
   librato.getMetric(metricName)
     .then((resp) => {
-      bot.reply(message, '' + resp)
+      bot.reply(message, '`' + metricName + '`  =  ' + resp)
     })
     .catch((err) => {
       bot.reply(message, err.message)
+      throw err
+    })
+)
+
+controller.hears('stop', interaction, (bot, message) => {
+  stopPolling(message.channel)
+    ? bot.reply(message, 'Ok, will stop polling')
+    : bot.reply(message, 'I\'m not polling this channel!?')
+})
+
+controller.hears(['start polling (.*)', 'poll (.*)', 'tell me (.*)', 'what’s (.*)', 'whats (.*)'], interaction, (bot, message) => {
+  const input = message.match[1].split(' ')
+  const metricName = input.shift()
+  replyWithMetric(metricName, bot, message)
+    .then(() => {
+      const command = input.shift()
+      const duration = input.join(' ')
+      if (command === 'every' && duration) {
+        const poll = replyWithMetric.bind(null, metricName, bot, message)
+        const seconds = durationToSeconds(duration)
+        if (seconds) {
+          bot.reply(message, '_and i\'ll start polling_')
+          startPolling(message.channel, metricName, poll, seconds)
+        } else {
+          bot.reply(message, `I don't understand "${duration}"`)
+        }
+      }
+    })
+    .catch((err) => {
+      console.log(err)
     })
 })
