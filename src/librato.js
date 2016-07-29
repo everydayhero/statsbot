@@ -13,7 +13,9 @@ export default {
     request.get(`/metrics/${name}?count=1&resolution=60`)
       .then((resp) => {
         const measurements = resp.data.measurements
-        return measurements[Object.keys(measurements)[0]][0].value
+        return Object.keys(measurements).reduce((acc, key) => (
+          acc + measurements[key][0].sum
+        ), 0)
       })
       .catch((err) => {
         const message = err.response.status === 404
