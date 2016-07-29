@@ -23,5 +23,16 @@ export default {
           : `Sorry, ${err.response.statusText.toLowerCase()}`
         throw new Error(message)
       })
+  ),
+
+  findMetric: (name) => (
+    request.get(`/metrics?name=${name}`)
+      .then((resp) => {
+        const metrics = resp.data.metrics
+        const names = metrics.reduce((acc, m) => {
+          return acc.concat(m.name)
+        }, []).slice(0, 50)
+        return { metrics: names, count: resp.data.query.found }
+      })
   )
 }

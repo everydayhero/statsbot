@@ -16,6 +16,11 @@ Each of the following commands are followed by a metric name (and an optional po
 - tell me...
 - what's...
 
+There is also a "find" command allowing you to attempt to lookup metric names
+```
+@librato find [partial metric name]
+```
+
 ## Running locally
 
 You will need you SLACK_TOKEN, LIBRATO_USER, and LIBRATO_TOKEN in your environment, then simply run

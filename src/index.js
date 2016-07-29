@@ -33,6 +33,16 @@ const replyWithMetric = (metricName, bot, message) => (
     })
 )
 
+controller.hears('find (.*)', interaction, (bot, message) => {
+  librato.findMetric(message.match[1])
+    .then(({ metrics, count }) => {
+      bot.reply(message, `There are ${count}\n${metrics.join('\n')}`)
+    })
+    .catch((err) => {
+      bot.reply(message, err.message)
+    })
+})
+
 controller.hears('stop', interaction, (bot, message) => {
   stopPolling(message.channel)
     ? bot.reply(message, 'Ok, will stop polling')
